@@ -23,25 +23,25 @@ html {
 }
 
 .btn-primary {
-  background-color: #0b6ab8 !important;
-  border-color: #0b6ab8 !important;
+  background-color: #1C4B27 !important;
+  border-color: #1C4B27 !important;
 }
 
 .btn-primary:hover,
 .btn-primary:active,
 .btn-primary:visited {
-  background-color: #0e5ea0 !important;
-  border-color: #0e5ea0 !important;
+  background-color: #1C4B27 !important;
+  border-color: #1C4B27 !important;
 }
 
 .navbar-mod {
-  background-color: rgb(10, 10, 48);
+  background-color: rgb(10, 48, 12);
   color: white !important;
 }
 .liner-gradient-sky {
-  background: #1488cc;
-  background: -webkit-linear-gradient(to right, #2b32b2, #1488cc);
-  background: linear-gradient(to right, #2b32b2, #1488cc);
+  background: #34583c;
+  background: -webkit-linear-gradient(to right, #2bb23d, #0da039);
+  background: linear-gradient(to right, #2bb263, #0da039);
 }
 .liner-gradient-margo {
   background: #f8eecc;
@@ -69,7 +69,7 @@ a {
 
 .card-header,
 .card-footer {
-  background-color: rgb(10, 10, 48);
+  background-color: rgb(11, 54, 24);
 }
 
 .cd {
@@ -104,7 +104,7 @@ a {
 }
 
 .form-border {
-  border: 2px solid rgb(10, 10, 48) !important;
+  border: 2px solid rgb(18, 110, 60) !important;
 }
 
 .shadow {
