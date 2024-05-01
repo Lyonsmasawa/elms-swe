@@ -5,7 +5,7 @@ from .models import Student, Subject, Announcement, Assignment, Submission, Mate
 from django.template.defaulttags import register
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
-from .forms import AnnouncementForm, AssignmentForm, MaterialForm
+from .forms import AnnouncementForm, AssignmentForm, MaterialForm, WeeklyPlanForm
 from django import forms
 from django.core import validators
 
@@ -293,13 +293,15 @@ def updateAnnouncement(request, code, id):
 
     else:
         return redirect('std_login')
-    
+
+
 def addWeeklyPlan(request, code):
     if is_teacher_authorised(request, code):
         if request.method == 'POST':
             form = WeeklyPlanForm(request.POST)
             form.instance.subject = Subject.objects.get(code=code)
-            form.instance.teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
+            form.instance.teacher = Teacher.objects.get(
+                teacher_id=request.session['teacher_id'])
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Weekly plan added successfully.')
@@ -307,6 +309,21 @@ def addWeeklyPlan(request, code):
         else:
             form = WeeklyPlanForm()
         return render(request, 'main/weekly_plan.html', {'subject': Subject.objects.get(code=code), 'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']), 'form': form})
+    else:
+        return redirect('std_login')
+
+
+def allPlans(request, code):
+    if is_teacher_authorised(request, code):
+        subject = Subject.objects.get(code=code)
+        weekly_plans = WeeklyPlan.objects.filter(subject=subject)
+
+        context = {
+            'weekly_plans': weekly_plans,
+            'subject': subject,
+            'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
+        }
+        return render(request, 'main/all-weekly-plans.html', context)
     else:
         return redirect('std_login')
 

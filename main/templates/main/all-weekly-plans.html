@@ -1,0 +1,71 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} Assignments | {{ subject.name }} | eLMS {% endblock title %}
+{% block profile %}
+{% url 'profile' teacher.teacher_id %}
+{% endblock %}
+{% block user %}
+{{teacher.name}}
+{% endblock user %}
+{% block subjects %}
+{% url 'teacherSubjects' %}
+{% endblock subjects %}
+{% block allSubjects %}
+{% url 'subjects' %}
+{% endblock %}
+{% block content %}
+<div>
+   <!-- navigation links -->
+   <div class="container shadow-sm">
+      <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+         <ol class="breadcrumb p-3">
+            <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)"
+               href="{% url 'teacherSubjects' %}">My
+               Subjects</a>
+            </li>
+            <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)"
+               href="{% url 'teacher' subject.code %}">{{ subject.name }}</a></li>
+            <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Weekly Plans</li>
+         </ol>
+      </nav>
+   </div>
+   <!-- navigation links end -->
+   <div class="container d-flex flex-wrap flex-column">
+      <!-- subject name starts -->
+      <div class="subject-section p-3 m-3 shadow-sm d-flex justify-content-center">
+         <div class="fw-bold fs-5 subject_name">{{subject.level}}-{{subject.code}} : {{subject.name}}</div>
+      </div>
+      <!-- subject name ends -->
+       <!-- weekly plan section starts -->
+       <div class="subject-section p-3 m-3 shadow">
+         <div class="d-flex flex-row justify-content-between edit">
+            <h4 class="fw-bold" style="color: rgb(10, 10, 48);"><img src="{% static 'images/icon/open-book.png' %}"
+               alt="" style="height:1.5rem"><span style="margin-right: 0.6rem;"></span>Weekly Plans</h4>
+            <a style="height:2rem"
+               href="{% url 'addWeeklyPlan' subject.code %}">
+            <img src="{% static 'images/icon/iconBlack.png' %}"
+               alt="" height="32">
+            </a>
+         </div>
+         <hr>
+         <div class="add-announcement">
+            {% for plan in weekly_plans %}
+            <!-- individual weekly plan starts --> 
+            <div>
+               <p class="text-bold fs-6">Week of: {{ plan.week_start_date }}</p>
+               <p>{{ plan.plan }}</p>
+            </div>
+            <hr>
+            <!-- individual weekly plan ends -->
+            {% empty %}
+            <h6 style="text-align:center">No weekly plans available</h6>
+            {% endfor %}
+         </div>
+         <div class="text-center fs-6">
+            <p>Showing {{ weekly_plans.count }} of {{ subject.weeklyplan_set.count }} {% if weekly_plans.count == 1 %}plan{% else %}plans{% endif %}</p>
+         </div>
+      </div>
+      <!-- weekly plan section ends -->
+   </div>
+</div>
+{% endblock %}
