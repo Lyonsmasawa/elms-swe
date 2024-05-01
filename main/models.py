@@ -81,8 +81,8 @@ class Subject(models.Model):
         Level, on_delete=models.CASCADE, null=False, related_name='subjects')
     teacher = models.ForeignKey(
         Teacher, on_delete=models.SET_NULL, null=True, blank=True)
-    studentKey = models.IntegerField(null=False, unique=True)
-    teacherKey = models.IntegerField(null=False, unique=True)
+    studentKey = models.CharField(null=False, max_length=6, unique=True)
+    teacherKey = models.CharField(null=False, max_length=6, unique=True)
 
     class Meta:
         unique_together = ('code', 'level', 'name')
