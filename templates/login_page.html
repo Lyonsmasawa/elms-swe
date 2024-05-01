@@ -1,80 +1,165 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Log in | eLMS</title>
-      <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/icon/apple-touch-icon.png' %}">
-      <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icon/favicon-32x32.png' %}">
-      <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/icon/favicon-16x16.png' %}">
-      <link rel="manifest" href="{% static 'images/icon/site.webmanifest' %}">
-      <link rel="stylesheet" href="{% static 'styles/bootstrap.min.css' %}">
-      <link rel="stylesheet" href="{% static 'styles/style.css' %}">
-      <link rel="stylesheet" href="{% static 'styles/style-login.css' %}">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-   </head>
-   <body>
-      <div class="main">
-         <section class="sign-in">
-            <div class="container">
-               <div class="signin-content">
-                  <div class="signin-image">
-                     <figure><img src="{% static 'images/login-bg.jpg' %}" alt="sing up image"></figure>
-                  </div>
-                  <div class="signin-form">
-                     <h2 class="form-title">Sign in to eLMS</h2>
-                     <form method="POST" class="register-form" id="login-form">
-                           {% csrf_token %}
-                           <div class="form-group">
-                              <label for="{{ form.id.id_for_label }}"><span class="material-symbols-outlined" style="vertical-align:text-bottom">person</span></label>
-                              {{ form.id }}
-                           </div>
-                           <div class="form-group">
-                              <label for="{{ form.password.id_for_label }}"><span class="material-symbols-outlined" style="vertical-align:text-bottom">lock</span></label>
-                              {{ form.password }}
-                           </div>
-                           <div class="d-grid">
-                              <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Sign in</button>
-                           </div>
-                     </form>
-                     <div class="d-flex justify-content-around flex-wrap">
-                        <!-- <div class="">
-                           <div class="dropdown">
-                              <a class="dropdown-toggle" id="dropdownMenuButton1"
-                                 data-bs-toggle="dropdown" aria-expanded="false" role="button">
-                              Sign in as Guest
-                              </a>
-                              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                 <li><a class="dropdown-item" href="/student">Student</a></li>
-                                 <li><a class="dropdown-item" href="/teacher">Teacher</a></li>
-                              </ul>
-                           </div>
-                        </div> -->
-                        <div class="">
-                           <a href="/admin" target="_blank">Sign in as Admin</a>
-                        </div>
-                     </div>
-                     {% if error_messages %}
-                     <!-- Error Alert -->
-                     <div class="alert alert-danger alert-dismissible fade show my-2">
-                        {% for message in error_messages %}
-                        {{ message }}
-                        {% endfor %}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                     </div>
-                     {% endif %}
-                  </div>
-               </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log in | eLMS</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{% static 'images/icon/apple-touch-icon.png' %}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{% static 'images/icon/favicon-32x32.png' %}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{% static 'images/icon/favicon-16x16.png' %}"
+    />
+    <link rel="manifest" href="{% static 'images/icon/site.webmanifest' %}" />
+    <link rel="stylesheet" href="{% static 'styles/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'styles/style-login.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
+    />
+  </head>
+  <body>
+    <section class="login">
+      <div class="login_box">
+        <div class="left">
+          <div class="top_link">
+            <a href="/admin" target="_blank"
+              ><span
+                class="material-symbols-outlined"
+                style="vertical-align: text-bottom"
+              >
+                person</span
+              >Sign in as Admin</a
+            >
+          </div>
+
+          <div class="contact">
+            <div class="">
+              <h3>SIGN IN</h3>
+              {% if error_messages %}
+              <!-- Error Alert -->
+              <div class="alert alert-danger alert-dismissible fade show my-2">
+                {% for message in error_messages %} {{ message }} {% endfor %}
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                ></button>
+              </div>
+              {% endif %}
+              <form method="POST" class="register-form" id="login-form">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label for="{{ form.id.id_for_label }}"
+                    ><span
+                      class="material-symbols-outlined mr-5"
+                      style="vertical-align: text-bottom"
+                      >person</span
+                    ></label
+                  >
+                  {{ form.id }}
+                </div>
+                <div class="form-group">
+                  <label for="{{ form.password.id_for_label }}"
+                    ><span
+                      class="material-symbols-outlined mr-5"
+                      style="vertical-align: text-bottom"
+                      >lock</span
+                    ></label
+                  >
+                  {{ form.password }}
+                </div>
+                <div class="d-grid">
+                  <button
+                    class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2"
+                    type="submit"
+                  >
+                    Sign in
+                  </button>
+                </div>
+              </form>
             </div>
-         </section>
+          </div>
+        </div>
+        <div class="right">
+          <div class="right-text">
+            <h2>LMS</h2>
+            <h5>WESTLANDS SYSTEM</h5>
+          </div>
+          <div class="right-inductor">
+            <img
+              src="https://lh3.googleusercontent.com/fife/ABSRlIoGiXn2r0SBm7bjFHea6iCUOyY0N2SrvhNUT-orJfyGNRSMO2vfqar3R-xs5Z4xbeqYwrEMq2FXKGXm-l_H6QAlwCBk9uceKBfG-FjacfftM0WM_aoUC_oxRSXXYspQE3tCMHGvMBlb2K1NAdU6qWv3VAQAPdCo8VwTgdnyWv08CmeZ8hX_6Ty8FzetXYKnfXb0CTEFQOVF4p3R58LksVUd73FU6564OsrJt918LPEwqIPAPQ4dMgiH73sgLXnDndUDCdLSDHMSirr4uUaqbiWQq-X1SNdkh-3jzjhW4keeNt1TgQHSrzW3maYO3ryueQzYoMEhts8MP8HH5gs2NkCar9cr_guunglU7Zqaede4cLFhsCZWBLVHY4cKHgk8SzfH_0Rn3St2AQen9MaiT38L5QXsaq6zFMuGiT8M2Md50eS0JdRTdlWLJApbgAUqI3zltUXce-MaCrDtp_UiI6x3IR4fEZiCo0XDyoAesFjXZg9cIuSsLTiKkSAGzzledJU3crgSHjAIycQN2PH2_dBIa3ibAJLphqq6zLh0qiQn_dHh83ru2y7MgxRU85ithgjdIk3PgplREbW9_PLv5j9juYc1WXFNW9ML80UlTaC9D2rP3i80zESJJY56faKsA5GVCIFiUtc3EewSM_C0bkJSMiobIWiXFz7pMcadgZlweUdjBcjvaepHBe8wou0ZtDM9TKom0hs_nx_AKy0dnXGNWI1qftTjAg=w1920-h979-ft"
+              alt=""
+            />
+          </div>
+        </div>
       </div>
-      <script src=" {% static 'js/bootstrap.bundle.min.js' %} "></script>
-      <script>
-         if (window.history.replaceState) {
-             window.history.replaceState(null, null, window.location.href);
-         }     
-      </script>
-   </body>
+    </section>
+
+    <script src=" {% static 'js/bootstrap.bundle.min.js' %} "></script>
+    <script>
+      if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+      }
+    </script>
+  </body>
 </html>
+<div class="main">
+  <section class="sign-in">
+    <div class="container">
+      <div class="signin-content">
+        <div class="signin-image">
+          <figure>
+            <img src="{% static 'images/login-bg.jpg' %}" alt="sing up image" />
+          </figure>
+        </div>
+        <div class="signin-form">
+          <h2 class="form-title">Sign in to eLMS</h2>
+
+          <div class="d-flex justify-content-around flex-wrap">
+            <!-- <div class="">
+                        <div class="dropdown">
+                           <a class="dropdown-toggle" id="dropdownMenuButton1"
+                              data-bs-toggle="dropdown" aria-expanded="false" role="button">
+                           Sign in as Guest
+                           </a>
+                           <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                              <li><a class="dropdown-item" href="/student">Student</a></li>
+                              <li><a class="dropdown-item" href="/teacher">Teacher</a></li>
+                           </ul>
+                        </div>
+                     </div> -->
+            <div class="">
+              <a href="/admin" target="_blank">Sign in as Admin</a>
+            </div>
+          </div>
+          {% if error_messages %}
+          <!-- Error Alert -->
+          <div class="alert alert-danger alert-dismissible fade show my-2">
+            {% for message in error_messages %} {{ message }} {% endfor %}
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
