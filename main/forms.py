@@ -1,7 +1,7 @@
 from django import forms
 from froala_editor.widgets import FroalaEditor
-from .models import Announcement, Assignment, Material, WeeklyPlan
-from datetime import date, timedelta
+from .models import Announcement, Assignment, LessonPlan, Material, WeeklyPlan
+from datetime import date, timedelta, timezone
 
 
 class AnnouncementForm(forms.ModelForm):
@@ -44,7 +44,6 @@ class WeeklyPlanForm(forms.ModelForm):
         for field in self.fields.values():
             field.required = True
             field.label = ''
-
         # Set initial value for week_start_date
         self.fields['week_start_date'].initial = self.get_start_of_week()
 
@@ -57,10 +56,26 @@ class WeeklyPlanForm(forms.ModelForm):
 
     class Meta:
         model = WeeklyPlan
-        fields = ('week_start_date', 'plan')
+        fields = ('week_start_date', 'description', 'title')
         widgets = {
             'week_start_date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'readonly': True}),
-            'plan': FroalaEditor()
+        }
+
+
+class LessonPlanForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(LessonPlanForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = True
+            field.label = ''
+
+    class Meta:
+        model = LessonPlan
+        fields = ('title', 'plan', 'time', 'date')
+        widgets = {
+            'plan': FroalaEditor(),
+            'time': forms.TimeInput(attrs={'class': 'form-control mt-1', 'type': 'time'}),
+            'date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date'}),
         }
 
 

@@ -96,11 +96,22 @@ class WeeklyPlan(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     week_start_date = models.DateField()
-    plan = FroalaField()
+    description = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
 
     def __str__(self):
         return f"Weekly Plan for {self.subject.name} by {self.teacher.name} - Week of {self.week_start_date}"
+
+
+class LessonPlan(models.Model):
+    week_plan = models.ForeignKey(WeeklyPlan, on_delete=models.CASCADE)
+    plan = FroalaField()
+    title = models.CharField(max_length=200)
+    time = models.TimeField()
+    date = models.DateField()
+
+    def __str__(self):
+        return f"Lesson Plan: {self.title}, Week of {self.week_plan.week_start_date}"
 
 
 class Announcement(models.Model):

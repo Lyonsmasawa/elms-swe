@@ -174,8 +174,14 @@ def subject_page_teacher(request, code):
                 subject_code=subject.code)
             materials = Material.objects.filter(subject_code=subject.code)
             studentCount = Student.objects.filter(subject=subject).count()
+            print(assignments)
 
-            # Calculate the start and end dates of the current week
+        except:
+            announcements = None
+            assignments = None
+            materials = None
+
+        try:
             today = datetime.timezone.now().date()
             start_of_week = today - datetime.timedelta(days=today.weekday())
             end_of_week = start_of_week + datetime.timedelta(days=6)
@@ -190,9 +196,6 @@ def subject_page_teacher(request, code):
             )
 
         except:
-            announcements = None
-            assignments = None
-            materials = None
             weekly_plans = None
 
         context = {
