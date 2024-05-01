@@ -5,7 +5,7 @@ from .models import Student, Subject, Announcement, Assignment, Submission, Mate
 from django.template.defaulttags import register
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
-from .forms import AnnouncementForm, AssignmentForm, MaterialForm, WeeklyPlanForm
+from .forms import AnnouncementForm, AssignmentForm, LessonPlanForm, MaterialForm, WeeklyPlanForm
 from django import forms
 from django.core import validators
 
@@ -298,20 +298,50 @@ def updateAnnouncement(request, code, id):
         return redirect('std_login')
 
 
+from django.forms import formset_factory
+
 def addWeeklyPlan(request, code):
     if is_teacher_authorised(request, code):
+        LessonPlanFormSet = formset_factory(LessonPlanForm, extra=1)
+        subject = get_object_or_404(Subject, code=code)
+        teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
+        
+        # Get the start date of the current week
+        today = datetime.date.today()
+        current_week_start = today - datetime.timedelta(days=today.weekday())
+        
+        
+        # Check if there's an existing weekly plan for the same week, subject, and teacher
+        existing_weekly_plan = WeeklyPlan.objects.filter(subject=subject, teacher=teacher, week_start_date=current_week_start).first()
+        
         if request.method == 'POST':
-            form = WeeklyPlanForm(request.POST)
-            form.instance.subject = Subject.objects.get(code=code)
-            form.instance.teacher = Teacher.objects.get(
-                teacher_id=request.session['teacher_id'])
-            if form.is_valid():
-                form.save()
-                messages.success(request, 'Weekly plan added successfully.')
+            weekly_form = WeeklyPlanForm(request.POST, instance=existing_weekly_plan)
+            lesson_formset = LessonPlanFormSet(request.POST)
+            weekly_form.instance.subject = subject
+            weekly_form.instance.teacher = teacher
+            if weekly_form.is_valid():
+                weekly_instance = weekly_form.save()
+                # Check if any lesson plan form is filled
+                if any(lesson_form.is_bound and lesson_form.is_valid() for lesson_form in lesson_formset):
+                    for lesson_form in lesson_formset:
+                        if lesson_form.is_bound and lesson_form.is_valid():
+                            lesson_instance = lesson_form.save(commit=False)
+                            lesson_instance.weekly_plan = weekly_instance
+                            lesson_instance.save()
+                    messages.success(request, 'Weekly plan and lesson plans added successfully.')
+                else:
+                    messages.warning(request, 'Weekly plan added successfully, but no lesson plans were added.')
                 return redirect('/teacher/' + str(code))
+            # If weekly plan form is not valid, render the form again with errors
         else:
-            form = WeeklyPlanForm()
-        return render(request, 'main/weekly_plan.html', {'subject': Subject.objects.get(code=code), 'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']), 'form': form})
+            weekly_form = WeeklyPlanForm(instance=existing_weekly_plan)
+            lesson_formset = LessonPlanFormSet()
+        return render(request, 'main/weekly_plan.html', {
+            'subject': subject,
+            'teacher': teacher,
+            'weekly_form': weekly_form,
+            'lesson_formset': lesson_formset,
+        })
     else:
         return redirect('std_login')
 

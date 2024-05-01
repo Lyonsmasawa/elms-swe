@@ -44,6 +44,9 @@ class WeeklyPlanForm(forms.ModelForm):
         for field in self.fields.values():
             field.required = True
             field.label = ''
+            if field.widget.attrs.get('placeholder') is None:
+                field.widget.attrs['placeholder'] = field.label.capitalize()
+
         # Set initial value for week_start_date
         self.fields['week_start_date'].initial = self.get_start_of_week()
 
@@ -56,9 +59,11 @@ class WeeklyPlanForm(forms.ModelForm):
 
     class Meta:
         model = WeeklyPlan
-        fields = ('week_start_date', 'description', 'title')
+        fields = ('week_start_date',  'title', 'description')
         widgets = {
             'week_start_date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'readonly': True}),
+            'description': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Description'}),
+            'title': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Title'}),
         }
 
 
@@ -68,14 +73,17 @@ class LessonPlanForm(forms.ModelForm):
         for field in self.fields.values():
             field.required = True
             field.label = ''
+            if field.widget.attrs.get('placeholder') is None:
+                field.widget.attrs['placeholder'] = field.label.capitalize()
 
     class Meta:
         model = LessonPlan
         fields = ('title', 'plan', 'time', 'date')
         widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Lesson Tilte'}),
             'plan': FroalaEditor(),
-            'time': forms.TimeInput(attrs={'class': 'form-control mt-1', 'type': 'time'}),
-            'date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control mt-1', 'type': 'time', 'placeholder': 'Time'}),
+            'date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'placeholder': 'Date'}),
         }
 
 
