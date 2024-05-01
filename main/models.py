@@ -4,7 +4,7 @@ from froala_editor.fields import FroalaField
 
 
 class Student(models.Model):
-    student_id = models.IntegerField(primary_key=True)
+    student_id = models.CharField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100, null=False)
     email = models.EmailField(max_length=100, null=True, blank=True)
     password = models.CharField(max_length=255, null=False)
@@ -26,11 +26,11 @@ class Student(models.Model):
         verbose_name_plural = 'Students'
 
     def __str__(self):
-        return self.name
+        return f"Student ID: {self.student_id}, Name: {self.name}"
 
 
 class Teacher(models.Model):
-    teacher_id = models.IntegerField(primary_key=True)
+    teacher_id = models.CharField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100, null=False)
     email = models.EmailField(max_length=100, null=True, blank=True)
     password = models.CharField(max_length=255, null=False)
@@ -50,11 +50,11 @@ class Teacher(models.Model):
         verbose_name_plural = 'Teacher'
 
     def __str__(self):
-        return self.name
+        return f"Teacher ID: {self.teacher_id}, Name: {self.name}"
 
 
 class Level(models.Model):
-    level_id = models.IntegerField(primary_key=True)
+    level_id = models.CharField(primary_key=True, max_length=12)
     name = models.CharField(max_length=100, null=False)
     description = models.TextField(null=True, blank=True)
 
@@ -62,7 +62,7 @@ class Level(models.Model):
         verbose_name_plural = 'Levels'
 
     def __str__(self):
-        return self.name
+        return f"Level Id: {self.level_id}, name: {self.name}"
 
     def student_count(self):
         return self.students.count()
@@ -75,7 +75,7 @@ class Level(models.Model):
 
 
 class Subject(models.Model):
-    code = models.IntegerField(primary_key=True)
+    code = models.CharField(primary_key=True, max_length=12)
     name = models.CharField(max_length=255, null=False, unique=True)
     level = models.ForeignKey(
         Level, on_delete=models.CASCADE, null=False, related_name='subjects')
@@ -89,7 +89,7 @@ class Subject(models.Model):
         verbose_name_plural = "Subjects"
 
     def __str__(self):
-        return self.name
+        return f"Code: {self.code}, Name: {self.name}, Level: {self.level.name}"
 
 
 class Announcement(models.Model):
