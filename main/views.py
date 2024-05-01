@@ -1,7 +1,7 @@
 import datetime
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Student, Subject, Announcement, Assignment, Submission, Material, Teacher, Level
+from .models import Student, Subject, Announcement, Assignment, Submission, Material, Teacher, Level, WeeklyPlan
 from django.template.defaulttags import register
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
@@ -137,7 +137,8 @@ def subject_page(request, code):
         subject = Subject.objects.get(code=code)
         if is_student_authorised(request, code):
             try:
-                announcements = Announcement.objects.filter(subject_code=subject)
+                announcements = Announcement.objects.filter(
+                    subject_code=subject)
                 assignments = Assignment.objects.filter(
                     subject_code=subject.code)
                 materials = Material.objects.filter(subject_code=subject.code)
@@ -174,18 +175,34 @@ def subject_page_teacher(request, code):
             materials = Material.objects.filter(subject_code=subject.code)
             studentCount = Student.objects.filter(subject=subject).count()
 
+            # Calculate the start and end dates of the current week
+            today = datetime.timezone.now().date()
+            start_of_week = today - datetime.timedelta(days=today.weekday())
+            end_of_week = start_of_week + datetime.timedelta(days=6)
+            teacher_id = request.session['teacher_id']
+            teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+
+            # Filter weekly plans based on the current teacher, subject, and creation date within the current week
+            weekly_plans = WeeklyPlan.objects.filter(
+                teacher=teacher,
+                subject=subject,
+                created_at__date__range=[start_of_week, end_of_week]
+            )
+
         except:
             announcements = None
             assignments = None
             materials = None
+            weekly_plans = None
 
         context = {
             'subject': subject,
             'announcements': announcements,
-            'assignments': assignments[:3],
+            'assignments': assignments,
             'materials': materials,
             'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
-            'studentCount': studentCount
+            'studentCount': studentCount,
+            'weekly_plans': weekly_plans,
         }
 
         return render(request, 'main/teacher_subject.html', context)
@@ -264,7 +281,8 @@ def editAnnouncement(request, code, id):
 def updateAnnouncement(request, code, id):
     if is_teacher_authorised(request, code):
         try:
-            announcement = Announcement.objects.get(subject_code_id=code, id=id)
+            announcement = Announcement.objects.get(
+                subject_code_id=code, id=id)
             form = AnnouncementForm(request.POST, instance=announcement)
             if form.is_valid():
                 form.save()
@@ -273,6 +291,22 @@ def updateAnnouncement(request, code, id):
         except:
             return redirect('/teacher/' + str(code))
 
+    else:
+        return redirect('std_login')
+    
+def addWeeklyPlan(request, code):
+    if is_teacher_authorised(request, code):
+        if request.method == 'POST':
+            form = WeeklyPlanForm(request.POST)
+            form.instance.subject = Subject.objects.get(code=code)
+            form.instance.teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Weekly plan added successfully.')
+                return redirect('/teacher/' + str(code))
+        else:
+            form = WeeklyPlanForm()
+        return render(request, 'main/weekly_plan.html', {'subject': Subject.objects.get(code=code), 'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']), 'form': form})
     else:
         return redirect('std_login')
 
@@ -369,7 +403,8 @@ def addSubmission(request, code, id):
         subject = Subject.objects.get(code=code)
         if is_student_authorised(request, code):
             # check if assignment is open
-            assignment = Assignment.objects.get(subject_code=subject.code, id=id)
+            assignment = Assignment.objects.get(
+                subject_code=subject.code, id=id)
             if assignment.deadline < datetime.datetime.now():
 
                 return redirect('/assignment/' + str(code) + '/' + str(id))
@@ -433,7 +468,8 @@ def gradeSubmission(request, code, id, sub_id):
         subject = Subject.objects.get(code=code)
         if is_teacher_authorised(request, code):
             if request.method == 'POST':
-                assignment = Assignment.objects.get(subject_code_id=code, id=id)
+                assignment = Assignment.objects.get(
+                    subject_code_id=code, id=id)
                 submissions = Submission.objects.filter(
                     assignment_id=assignment.id)
                 submission = Submission.objects.get(
@@ -444,7 +480,8 @@ def gradeSubmission(request, code, id, sub_id):
                 submission.save()
                 return HttpResponseRedirect(request.path_info)
             else:
-                assignment = Assignment.objects.get(subject_code_id=code, id=id)
+                assignment = Assignment.objects.get(
+                    subject_code_id=code, id=id)
                 submissions = Submission.objects.filter(
                     assignment_id=assignment.id)
                 submission = Submission.objects.get(

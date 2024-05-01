@@ -20,6 +20,7 @@ urlpatterns = [
     path('update/<str:code>/<str:id>/',
          views.updateAnnouncement, name='updateAnnouncement'),
     path('addAssignment/<str:code>/', views.addAssignment, name='addAssignment'),
+    path('addWeeklyPlan/<str:code>/', views.addWeeklyPlan, name='addWeeklyPlan'),
     path('assignment/<str:code>/<str:id>/',
          views.assignmentPage, name='assignmentPage'),
     path('assignments/<str:code>/', views.allAssignments, name='allAssignments'),

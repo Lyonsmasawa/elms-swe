@@ -1,6 +1,7 @@
 from django import forms
 from froala_editor.widgets import FroalaEditor
-from .models import Announcement, Assignment, Material
+from .models import Announcement, Assignment, Material, WeeklyPlan
+from datetime import date, timedelta
 
 
 class AnnouncementForm(forms.ModelForm):
@@ -34,6 +35,32 @@ class AssignmentForm(forms.ModelForm):
             'deadline': forms.DateTimeInput(attrs={'class': 'form-control mt-1', 'id': 'deadline', 'name': 'deadline', 'type': 'datetime-local'}),
             'marks': forms.NumberInput(attrs={'class': 'form-control mt-1', 'id': 'marks', 'name': 'marks', 'placeholder': 'Marks'}),
             'file': forms.FileInput(attrs={'class': 'form-control mt-1', 'id': 'file', 'name': 'file', 'aria-describedby': 'file', 'aria-label': 'Upload'}),
+        }
+
+
+class WeeklyPlanForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(WeeklyPlanForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = True
+            field.label = ''
+
+        # Set initial value for week_start_date
+        self.fields['week_start_date'].initial = self.get_start_of_week()
+
+    def get_start_of_week(self):
+        # Get the current date
+        today = date.today()
+        # Calculate the start of the current week (assuming Monday is the start of the week)
+        start_of_week = today - timedelta(days=today.weekday())
+        return start_of_week
+
+    class Meta:
+        model = WeeklyPlan
+        fields = ('week_start_date', 'plan')
+        widgets = {
+            'week_start_date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'readonly': True}),
+            'plan': FroalaEditor()
         }
 
 

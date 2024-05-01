@@ -92,6 +92,17 @@ class Subject(models.Model):
         return f"Code: {self.code}, Name: {self.name}, Level: {self.level.name}"
 
 
+class WeeklyPlan(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    week_start_date = models.DateField()
+    plan = FroalaField()
+    title = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"Weekly Plan for {self.subject.name} by {self.teacher.name} - Week of {self.week_start_date}"
+
+
 class Announcement(models.Model):
     subject_code = models.ForeignKey(
         Subject, on_delete=models.CASCADE, null=False)
