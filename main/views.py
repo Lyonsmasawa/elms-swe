@@ -14,8 +14,8 @@ from django import forms
 
 
 class LoginForm(forms.Form):
-    id = forms.CharField(label='ID', max_length=10, validators=[
-                         validators.RegexValidator(r'^\d+$', 'Please enter a valid number.')])
+    id = forms.CharField(label='ID', max_length=12, validators=[
+                         validators.RegexValidator(r'\S', 'Please enter a valid number.')])
     password = forms.CharField(widget=forms.PasswordInput)
 
 
