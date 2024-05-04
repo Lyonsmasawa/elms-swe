@@ -322,7 +322,7 @@ def addWeeklyPlan(request, code):
         print(request.method)
 
         if request.method == 'POST':
-            # Check if the lesson plan formset is submitted
+            # Check if the lesson plan formset is submitted 
             if 'lessonplan_set-TOTAL_FORMS' in request.POST:
                 lesson_formset = LessonPlanFormSet(request.POST)
                 if existing_weekly_plan:
@@ -340,7 +340,7 @@ def addWeeklyPlan(request, code):
                         request, 'Please correct the errors in the lesson plans.')
         
             else:
-                # Save or update the weekly plan
+                # Save or update the weekly plan 
                 print("Wwwwswsw")
                 weekly_form = WeeklyPlanForm(request.POST, instance=existing_weekly_plan)
                 if weekly_form.is_valid():
