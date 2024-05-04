@@ -85,6 +85,13 @@
       </div>
    </form>
    {% endif %}
+   {% if time < assignment.deadline and not submission.file %}
+   <form action="{% url 'addSubmission' subject.code assignment.id %}" method="POST"
+      id="gradeFormd" name="gradeFormd">
+      {% csrf_token %}
+      {{form}}
+   </form>
+   {% endif %}
 </div>
 <script>
    var time = new Date('{{ assignment.deadline|date:"D, d M Y H:i:s"}}').getTime();

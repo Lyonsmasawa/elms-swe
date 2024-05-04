@@ -7,7 +7,7 @@ from .models import LessonPlan, Student, Subject, Announcement, Assignment, Subm
 from django.template.defaulttags import register
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
-from .forms import AnnouncementForm, AssignmentForm, LessonPlanForm, MaterialForm, WeeklyPlanForm
+from .forms import AnnouncementForm, AssignmentForm, LessonPlanForm, MaterialForm, SubmissionForm, WeeklyPlanForm
 from django import forms
 from django.core import validators
 
@@ -324,13 +324,19 @@ def addWeeklyPlan(request, code):
         if request.method == 'POST':
             # Check if the lesson plan formset is submitted 
             if 'lessonplan_set-TOTAL_FORMS' in request.POST:
+                print("1")
+                
                 lesson_formset = LessonPlanFormSet(request.POST)
                 if existing_weekly_plan:
                     # Associate existing_weekly_plan with formset instances
+                    print("2")
                     for form in lesson_formset:
+                        print("3")
                         form.instance.week_plan = existing_weekly_plan
                 if lesson_formset.is_valid():
+                    print("4")
                     for lesson_form in lesson_formset:
+                        print("5")
                         lesson_instance = lesson_form.save()
                     messages.success(
                         request, 'Weekly and Lesson plans added successfully.')
@@ -487,36 +493,37 @@ def addSubmission(request, code, id):
             assignment = Assignment.objects.get(
                 subject_code=subject.code, id=id)
             if assignment.deadline < datetime.datetime.now():
-
                 return redirect('/assignment/' + str(code) + '/' + str(id))
 
-            if request.method == 'POST' and request.FILES['file']:
-                assignment = Assignment.objects.get(
-                    subject_code=subject.code, id=id)
-                submission = Submission(assignment=assignment, student=Student.objects.get(
-                    student_id=request.session['student_id']), file=request.FILES['file'],)
-                submission.status = 'Submitted'
-                submission.save()
-                return HttpResponseRedirect(request.path_info)
+            if request.method == 'POST':
+                form = SubmissionForm(request.POST, request.FILES)
+                if form.is_valid():
+                    submission = form.save(commit=False)
+                    submission.assignment = assignment
+                    submission.student = Student.objects.get(student_id=request.session['student_id'])
+                    submission.status = 'Submitted'
+                    submission.save()
+                    return HttpResponseRedirect(request.path_info)
             else:
-                assignment = Assignment.objects.get(
-                    subject_code=subject.code, id=id)
-                submission = Submission.objects.get(assignment=assignment, student=Student.objects.get(
-                    student_id=request.session['student_id']))
-                context = {
-                    'assignment': assignment,
-                    'subject': subject,
-                    'submission': submission,
-                    'time': datetime.datetime.now(),
-                    'student': Student.objects.get(student_id=request.session['student_id']),
-                    'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all()
-                }
+                form = AnnouncementForm()
 
-                return render(request, 'main/assignment-portal.html', context)
+            submission = Submission.objects.get(assignment=assignment, student=Student.objects.get(student_id=request.session['student_id']))
+            context = {
+                'assignment': assignment,
+                'subject': subject,
+                'submission': submission,
+                'time': datetime.datetime.now(),
+                'student': Student.objects.get(student_id=request.session['student_id']),
+                'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all(),
+                'form': form
+            }
+
+            return render(request, 'main/assignment-portal.html', context)
         else:
             return redirect('std_login')
     except:
         return HttpResponseRedirect(request.path_info)
+
 
 
 def viewSubmission(request, code, id):
