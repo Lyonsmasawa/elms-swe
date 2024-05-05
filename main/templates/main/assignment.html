@@ -23,7 +23,7 @@
          </li>
          <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)"
             href="{% url 'teacher' subject.code %}">{{ subject.name }}</a></li>
-         <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Assignment</li>
+         <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Assessment</li>
       </ol>
    </nav>
 </div>
@@ -32,7 +32,7 @@
    <div class="row justify-content-center">
       <div class="col-sm-12 col-lg-8 shadow-lg rounded p-4">
          <div class="text-center">
-            <div class="fw-bold text-start mb-3">Create Assignment</div>
+            <div class="fw-bold text-start mb-3">Create Assessment</div>
             <div class="form-group">
                <form action="" method="POST" enctype="multipart/form-data">
                   {% csrf_token %}

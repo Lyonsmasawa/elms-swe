@@ -83,7 +83,7 @@
       <!-- assignment section starts -->
       <div class="rounded p-3 m-3 shadow border border-top-0 border-bottom-0 border-end-0 border-danger border-5 mb-2">
          <div class="fw-bold fs-5 text-center animate__animated animate__zoomInDown border-bottom border-1 mb-2 py-2" style="color: rgb(10, 10, 48);"><img src="{% static 'images/icon/open-book.png' %}"
-            alt="" style="height:1.5rem; vertical-align: text-top"><span style="margin-right: 0.6rem;"></span>Assignment</div>
+            alt="" style="height:1.5rem; vertical-align: text-top"><span style="margin-right: 0.6rem;"></span>Assessment</div>
          <div >
             {% for assignment in assignments %}
             <!-- individual assignment starts -->
@@ -97,13 +97,13 @@
             </div>
             <!-- individual assignment ends -->
             {% empty %}
-            <p class="text-center text-muted fs-6">No assignments given yet</p>
+            <p class="text-center text-muted fs-6">No assessments given yet</p>
             {% endfor %}
          </div>
          {% if assignments %}
          <div class="text-center fs-6 text-muted d-flex flex-column border-top border-1">
             <span class="mt-2">Showing {{ assignments.count}} of {{subject.assignment_set.count}}
-            {% if assignments.count == 1 %}assignment {% else %}assignments{% endif %}
+            {% if assignments.count == 1 %}assessment {% else %}assessments{% endif %}
             </span>
             <a class="fs-6" href=" {% url 'student-assignments' subject.code %} ">Show all</a>
          </div>

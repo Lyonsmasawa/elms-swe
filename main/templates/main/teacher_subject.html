@@ -146,7 +146,7 @@
    <div class="rounded p-3 m-3 shadow border border-top-0 border-bottom-0 border-end-0 border-danger border-5">
       <div class="animate__animated animate__zoomInLeft d-flex flex-row justify-content-between edit border-bottom border-1 mb-2">
          <h5 class="fw-bold assignmentCls" style="color: rgb(10, 10, 48);"><img src="{% static 'images/icon/open-book.png' %}"
-            alt="" style="height:1.5rem; vertical-align: top"><span style="margin-right: 0.6rem;"></span>Assignment</h5>
+            alt="" style="height:1.5rem; vertical-align: top"><span style="margin-right: 0.6rem;"></span>Assessment</h5>
          <a style="height:2rem"
             href="{% url 'addAssignment' subject.code %}">
          <img src="{% static 'images/icon/iconBlack.png' %}"
@@ -168,13 +168,13 @@
          </div>
          <!-- individual assignment ends -->
          {% empty %}
-         <p class="text-center text-muted fs-6">No assignments given yet</p>
+         <p class="text-center text-muted fs-6">No assessments given yet</p>
          {% endfor %}
       </div>
       <div class="text-center fs-6 text-muted d-flex flex-column border-top border-1">
          {% if assignments %}
          <span class="mt-2" >Showing {{ assignments.count}} of {{subject.assignment_set.count}}
-         {% if assignments.count == 1 %}assignment {% else %}assignments{% endif %}
+         {% if assignments.count == 1 %}assessment {% else %}assessments{% endif %}
          </span>
          <a href="{% url 'allAssignments' subject.code %}">Show all</a>
          {% endif %}

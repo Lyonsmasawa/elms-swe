@@ -1,6 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
-{% block title %} Assignments | {{ subject.name }} | eLMS {% endblock title %}
+{% block title %} Assessments | {{ subject.name }} | eLMS {% endblock title %}
 {% block profile %}
 {% url 'profile' teacher.teacher_id %}
 {% endblock %}
@@ -25,7 +25,7 @@
             </li>
             <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)"
                href="{% url 'teacher' subject.code %}">{{ subject.name }}</a></li>
-            <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Assignment</li>
+            <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Assessment</li>
          </ol>
       </nav>
    </div>
@@ -40,7 +40,7 @@
       <div class="subject-section p-3 m-3 shadow">
          <div class="d-flex flex-row justify-content-between edit">
             <h4 class="fw-bold" style="color: rgb(10, 10, 48);"><img src="{% static 'images/icon/open-book.png' %}"
-               alt="" style="height:1.5rem"><span style="margin-right: 0.6rem;"></span>Assignment</h4>
+               alt="" style="height:1.5rem"><span style="margin-right: 0.6rem;"></span>Assessment</h4>
             <a style="height:2rem"
                href="{% url 'addAssignment' subject.code %}">
             <img src="{% static 'images/icon/iconBlack.png' %}"
@@ -63,11 +63,11 @@
             <hr>
             <!-- individual assignment ends -->
             {% empty %}
-            <h6 style="text-align:center">No assignments given yet</h6>
+            <h6 style="text-align:center">No assessments given yet</h6>
             {% endfor %}
          </div>
          <div class="text-center fs-6">
-            <p>Showing {{ assignments.count}} of {{subject.assignment_set.count}} {% if assignments.count == 1 %}assignment {% else %}assignments{% endif %}</p>
+            <p>Showing {{ assignments.count}} of {{subject.assignment_set.count}} {% if assignments.count == 1 %}assessment {% else %}assessments{% endif %}</p>
          </div>
       </div>
       <!-- assignment section ends -->
