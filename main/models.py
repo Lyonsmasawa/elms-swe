@@ -163,7 +163,7 @@ class Submission(models.Model):
     assignment = models.ForeignKey(
         Assignment, on_delete=models.CASCADE, null=False)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=False)
-    file = models.FileField(upload_to='submissions/', null=True,)
+    file = models.FileField(upload_to='submissions/', null=True, blank=True)
     writing = FroalaField(null=True, blank=True)
     datetime = models.DateTimeField(auto_now_add=True, null=False)
     marks = models.DecimalField(

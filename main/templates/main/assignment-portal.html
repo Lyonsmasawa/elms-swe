@@ -1,4 +1,5 @@
 {% extends 'index.html' %}
+{% load static %}
 {% block title %} {{ assignment.title }} - eLMS {% endblock title %}
 {% block profile %}
 {% url 'profile' student.student_id %}
@@ -69,27 +70,18 @@
       {% endif %}
       <label id="timer" class="p-2 fw-bold" for="">Time Remaining : <span id="timeRemain" class="fw-semibold"></span></label><br>
    </div>
-   {% if time < assignment.deadline and not submission.file %}
+   {% if time < assignment.deadline and not submission.writing and not submission.file %}
    <form action="{% url 'addSubmission' subject.code assignment.id %}" method="POST" enctype="multipart/form-data"
       id="gradeForm" name="gradeForm">
       {% csrf_token %}
       <div id="fileSubmit">
-         <div class="input-group mb-3 p-2">
-            <input type="file" class="form-control shadow-sm rounded" id="file" name="file" required>
-         </div>
+         {{form.as_p}}
          <p class="text-center" id="fileError"></p>
          <div class="btn-container d-flex justify-content-center">
             <button type="submit" class="btn btn-primary px-5 shadow-sm rounded">Submit</button><span
                class="p-2"></span>
          </div>
       </div>
-   </form>
-   {% endif %}
-   {% if time < assignment.deadline and not submission.file %}
-   <form action="{% url 'addSubmission' subject.code assignment.id %}" method="POST"
-      id="gradeFormd" name="gradeFormd">
-      {% csrf_token %}
-      {{form}}
    </form>
    {% endif %}
 </div>

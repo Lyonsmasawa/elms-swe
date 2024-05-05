@@ -14,6 +14,14 @@
 {% url 'teacherSubjects' %}
 {% endblock subjects %}
 {% block content %}
+
+<!-- Include Froala Editor CSS from CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.6/css/froala_editor.min.css" rel="stylesheet">
+
+<!-- Include Froala Editor JavaScript from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.6/js/froala_editor.min.js"></script>
+
+
 <!-- navigation links -->
 <div class="container shadow-sm">
    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
@@ -59,6 +67,7 @@
             <tr>
                <th class="text-center" scope="col" colspan="2">Student</th>
                <th class="text-center" scope="col">Student ID</th>
+               <th class="text-center" scope="col">Submitted Writing</th>
                <th class="text-center" scope="col">Submitted file</th>
                <th class="text-center" scope="col">Submitted on</th>
                <th class="text-center" scope="col" style="min-width: 150px;">Grade</th>
@@ -74,10 +83,35 @@
                   style="height: 2.5rem;"></td>
                <td>{{submission.student.name}}</td>
                <td class="text-center"><span>{{ submission.student_id }}</span></td>
+               {% if submission.writing %}
+               <div class="modal fade" id="viewSubmissionModal" tabindex="-1" aria-labelledby="viewSubmissionModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+                    <div class="modal-content" style="border-radius: 10px;">
+                      <div class="modal-header" style="background-color: #f0f0f0; border-bottom: none;">
+                        <h5 class="modal-title" id="viewSubmissionModalLabel" style="color: #333; font-weight: bold;">Submission Writing ({{submission.student.name}})</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body" style="padding: 20px;">
+                        <div id="submissionWritingContent"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+               <td class="text-center"><button
+                  class="view-submission-btn fw-bold px-2 py-1 text-primary bg-primary bg-opacity-10 border border-priamry border-opacity-10 rounded-2"
+                  style="text-decoration: none; font-size: smaller !important"  data-writing-content="{{ submission.writing }}">View</button></td>
+               {% elif not submission.writing %}
+               <td class="text-center">None</td>
+               {% endif %}
+               {% if submission.file %}
                <td class="text-center"><a
                   class="fw-bold px-2 py-1 text-primary bg-primary bg-opacity-10 border border-priamry border-opacity-10 rounded-2"
                   style="text-decoration: none; font-size: smaller !important" download
                   href="{{submission.file.url}}">Download</a></td>
+               {% elif not submission.file %}
+               <td class="text-center">None</td>
+               {% endif %}
+
                <td class="text-center">{{submission.submission_date}}</td>
                {% if submission %}
                <td class="text-center" style="min-width: 150px;">
@@ -115,6 +149,9 @@
          </tbody>
       </table>
    </div>
+  
+    
+    
 </div>
 <script>
    let assignment = document.querySelectorAll('.assignment-info');
@@ -146,5 +183,17 @@
            document.getElementById("timeRemain").style.color = "red";
        }
    }, 1000);
+
+   $(document).ready(function() {
+      $('.view-submission-btn').click(function() {
+        var writingContent = $(this).data('writing-content');
+        if (writingContent) {
+          $('#submissionWritingContent').html(writingContent);
+          $('#viewSubmissionModal').modal('show');
+        } else {
+          console.error("Submission writing content is empty.");
+        }
+      });
+    });
 </script>
 {% endblock %}

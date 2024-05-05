@@ -71,7 +71,7 @@ class LessonPlanForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(LessonPlanForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.required = True
+            field.required = False
             field.label = ''
             if field.widget.attrs.get('placeholder') is None:
                 field.widget.attrs['placeholder'] = field.label.capitalize()

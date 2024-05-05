@@ -299,12 +299,12 @@ def updateAnnouncement(request, code, id):
     else:
         return redirect('std_login')
 
+
 def addWeeklyPlan(request, code):
     if is_teacher_authorised(request, code):
         LessonPlanFormSet = inlineformset_factory(
-         WeeklyPlan, LessonPlan, form=LessonPlanForm, extra=1, exclude=['week_plan'])
+            WeeklyPlan, LessonPlan, form=LessonPlanForm, extra=1, exclude=['week_plan'])
 
-        
         subject = get_object_or_404(Subject, code=code)
         teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
 
@@ -315,28 +315,32 @@ def addWeeklyPlan(request, code):
         # Check if there's an existing weekly plan for the same week, subject, and teacher
         existing_weekly_plan = WeeklyPlan.objects.filter(
             subject=subject, teacher=teacher, week_start_date=current_week_start).first()
-        
+
         # Initialize forms
         lesson_formset = LessonPlanFormSet()
         weekly_form = WeeklyPlanForm()
         print(request.method)
 
         if request.method == 'POST':
-            # Check if the lesson plan formset is submitted 
+            # Check if the lesson plan formset is submitted
             if 'lessonplan_set-TOTAL_FORMS' in request.POST:
                 print("1")
-                
+
                 lesson_formset = LessonPlanFormSet(request.POST)
                 if existing_weekly_plan:
                     # Associate existing_weekly_plan with formset instances
                     print("2")
+                    print(type(existing_weekly_plan))
                     for form in lesson_formset:
                         print("3")
                         form.instance.week_plan = existing_weekly_plan
+                        print(type(form.instance.week_plan))
+
                 if lesson_formset.is_valid():
                     print("4")
                     for lesson_form in lesson_formset:
                         print("5")
+                        # lesson_form
                         lesson_instance = lesson_form.save()
                     messages.success(
                         request, 'Weekly and Lesson plans added successfully.')
@@ -344,11 +348,12 @@ def addWeeklyPlan(request, code):
                 else:
                     messages.warning(
                         request, 'Please correct the errors in the lesson plans.')
-        
+
             else:
-                # Save or update the weekly plan 
+                # Save or update the weekly plan
                 print("Wwwwswsw")
-                weekly_form = WeeklyPlanForm(request.POST, instance=existing_weekly_plan)
+                weekly_form = WeeklyPlanForm(
+                    request.POST, instance=existing_weekly_plan)
                 if weekly_form.is_valid():
                     weekly_instance = weekly_form.save(commit=False)
                     weekly_instance.teacher = teacher
@@ -371,7 +376,7 @@ def addWeeklyPlan(request, code):
             else:
                 print("ggggg")
                 lesson_formset = LessonPlanFormSet()
-                
+
         return render(request, 'main/weekly_plan.html', {
             'subject': subject,
             'teacher': teacher,
@@ -380,7 +385,6 @@ def addWeeklyPlan(request, code):
         })
     else:
         return redirect('std_login')
-
 
 
 def allPlans(request, code):
@@ -429,13 +433,15 @@ def assignmentPage(request, code, id):
                 'submission': submission,
                 'time': datetime.datetime.now(),
                 'student': Student.objects.get(student_id=request.session['student_id']),
-                'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all()
+                'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all(),
+                'form':  SubmissionForm()
+
             }
 
             return render(request, 'main/assignment-portal.html', context)
 
         except:
-            submission = None
+            submission = SubmissionForm()
 
         context = {
             'assignment': assignment,
@@ -443,9 +449,11 @@ def assignmentPage(request, code, id):
             'submission': submission,
             'time': datetime.datetime.now(),
             'student': Student.objects.get(student_id=request.session['student_id']),
-            'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all()
-        }
+            'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all(),
+            'form':  SubmissionForm()
 
+        }
+        print(1)
         return render(request, 'main/assignment-portal.html', context)
     else:
 
@@ -500,14 +508,16 @@ def addSubmission(request, code, id):
                 if form.is_valid():
                     submission = form.save(commit=False)
                     submission.assignment = assignment
-                    submission.student = Student.objects.get(student_id=request.session['student_id'])
+                    submission.student = Student.objects.get(
+                        student_id=request.session['student_id'])
                     submission.status = 'Submitted'
                     submission.save()
                     return HttpResponseRedirect(request.path_info)
             else:
-                form = AnnouncementForm()
+                form = SubmissionForm()
 
-            submission = Submission.objects.get(assignment=assignment, student=Student.objects.get(student_id=request.session['student_id']))
+            submission = Submission.objects.get(assignment=assignment, student=Student.objects.get(
+                student_id=request.session['student_id']))
             context = {
                 'assignment': assignment,
                 'subject': subject,
@@ -517,6 +527,8 @@ def addSubmission(request, code, id):
                 'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all(),
                 'form': form
             }
+            print(context)
+            print(1)
 
             return render(request, 'main/assignment-portal.html', context)
         else:
@@ -525,30 +537,37 @@ def addSubmission(request, code, id):
         return HttpResponseRedirect(request.path_info)
 
 
-
 def viewSubmission(request, code, id):
-    subject = Subject.objects.get(code=code)
-    if is_teacher_authorised(request, code):
-        try:
-            assignment = Assignment.objects.get(subject_code_id=code, id=id)
+    print(1)
+    try:
+        subject = Subject.objects.get(code=code)
+        if is_teacher_authorised(request, code):
+            assignment = get_object_or_404(
+                Assignment, subject_code_id=code, id=id)
             submissions = Submission.objects.filter(
                 assignment_id=assignment.id)
+            total_students = Student.objects.filter(subject=subject).count()
+            teacher = Teacher.objects.get(
+                teacher_id=request.session['teacher_id'])
+            subjects = Subject.objects.filter(
+                teacher_id=request.session['teacher_id'])
 
             context = {
                 'subject': subject,
                 'submissions': submissions,
                 'assignment': assignment,
-                'totalStudents': len(Student.objects.filter(subject=subject)),
-                'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
-                'subjects': Subject.objects.filter(teacher_id=request.session['teacher_id'])
+                'totalStudents': total_students,
+                'teacher': teacher,
+                'subjects': subjects
             }
 
             return render(request, 'main/assignment-view.html', context)
-
-        except:
-            return redirect('/teacher/' + str(code))
-    else:
-        return redirect('std_login')
+        else:
+            return redirect('std_login')
+    except Subject.DoesNotExist:
+        return redirect('/teacher/' + str(code))
+    except Assignment.DoesNotExist:
+        return redirect('/teacher/' + str(code))
 
 
 def gradeSubmission(request, code, id, sub_id):
