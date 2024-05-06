@@ -113,6 +113,7 @@ class WeeklyPlan(models.Model):
     description = models.CharField(max_length=200)
     plan = FroalaField()
     title = models.CharField(max_length=200)
+    review = FroalaField(null=True, blank=True)
 
     def __str__(self):
         return f"Weekly Plan for {self.subject.name} by {self.teacher.name} - Week of {self.week_start_date}"

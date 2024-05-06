@@ -43,7 +43,8 @@ class WeeklyPlanForm(forms.ModelForm):
         super(WeeklyPlanForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.required = True
-            field.label = ''
+            self.fields['review'].required = False
+            
             if field.widget.attrs.get('placeholder') is None:
                 field.widget.attrs['placeholder'] = field.label.capitalize()
 
@@ -59,12 +60,13 @@ class WeeklyPlanForm(forms.ModelForm):
 
     class Meta:
         model = WeeklyPlan
-        fields = ('week_start_date',  'title', 'description', 'plan')
+        fields = ('week_start_date',  'title', 'description', 'plan', 'review')
         widgets = {
             'week_start_date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'readonly': True}),
             'description': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Description'}),
             'title': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Title'}),
-            'plan': FroalaEditor(),
+            'plan': FroalaEditor(attrs={'class': 'form-control mt-1', 'placeholder': 'Plan'}),
+            'review': FroalaEditor(attrs={'class': 'form-control mt-1', 'placeholder': 'Review'})
         }
 
 
