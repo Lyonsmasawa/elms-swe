@@ -47,26 +47,6 @@
            </div>
        </div>
    </div>
-   <div class="row justify-content-center mt-4">
-       <div class="col-md-8 shadow-lg p-3 rounded">
-           <div class="text-center">
-               <div class="fw-bold mb-3 text-start">Add Lesson Plan</div>
-               <div class="from-group">
-                   <form method="post" enctype="multipart/form-data">
-                       {% csrf_token %}
-                       {{ lesson_formset.management_form }}
-                       {% for lesson_form in lesson_formset %}
-                           {{ lesson_form.as_p }}
-                       {% endfor %}
-                       <!-- submit button -->
-                       <div class="d-flex justify-content-end bg-light border p-2 rounded">
-                           <button class="btn btn-sm btn-primary" type="submit" id="submit"> <span class="mx-2">Save Lesson Plans</span></button>
-                       </div>
-                   </form>
-               </div>
-           </div>
-       </div>
-   </div>
 </div>
 
 

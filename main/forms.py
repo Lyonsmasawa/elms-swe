@@ -59,11 +59,12 @@ class WeeklyPlanForm(forms.ModelForm):
 
     class Meta:
         model = WeeklyPlan
-        fields = ('week_start_date',  'title', 'description')
+        fields = ('week_start_date',  'title', 'description', 'plan')
         widgets = {
             'week_start_date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'readonly': True}),
             'description': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Description'}),
             'title': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Title'}),
+            'plan': FroalaEditor(),
         }
 
 

@@ -176,7 +176,6 @@ def subject_page_teacher(request, code):
                 subject_code=subject.code)
             materials = Material.objects.filter(subject_code=subject.code)
             studentCount = Student.objects.filter(subject=subject).count()
-            print(assignments)
 
         except:
             announcements = None
@@ -184,19 +183,14 @@ def subject_page_teacher(request, code):
             materials = None
 
         try:
-            today = datetime.timezone.now().date()
-            start_of_week = today - datetime.timedelta(days=today.weekday())
-            end_of_week = start_of_week + datetime.timedelta(days=6)
             teacher_id = request.session['teacher_id']
             teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
 
             # Filter weekly plans based on the current teacher, subject, and creation date within the current week
             weekly_plans = WeeklyPlan.objects.filter(
                 teacher=teacher,
-                subject=subject,
-                created_at__date__range=[start_of_week, end_of_week]
+                subject=subject
             )
-
         except:
             weekly_plans = None
 
@@ -300,7 +294,7 @@ def updateAnnouncement(request, code, id):
         return redirect('std_login')
 
 
-def addWeeklyPlan(request, code):
+def addWeeklyPlandep(request, code):
     if is_teacher_authorised(request, code):
         LessonPlanFormSet = inlineformset_factory(
             WeeklyPlan, LessonPlan, form=LessonPlanForm, extra=1, exclude=['week_plan'])
@@ -385,12 +379,56 @@ def addWeeklyPlan(request, code):
         })
     else:
         return redirect('std_login')
+    
+    
+def addWeeklyPlan(request, code):
+    if is_teacher_authorised(request, code):
+        subject = get_object_or_404(Subject, code=code)
+        teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
+
+        # Get the start date of the current week
+        today = datetime.date.today()
+        current_week_start = today - datetime.timedelta(days=today.weekday())
+
+        # Check if there's an existing weekly plan for the same week, subject, and teacher
+        existing_weekly_plan = WeeklyPlan.objects.filter(
+            subject=subject, teacher=teacher, week_start_date=current_week_start).first()
+
+        if request.method == 'POST':
+            # Handle form submission
+            weekly_form = WeeklyPlanForm(request.POST, instance=existing_weekly_plan)
+            if weekly_form.is_valid():
+                weekly_instance = weekly_form.save(commit=False)
+                weekly_instance.teacher = teacher
+                weekly_instance.subject = subject
+                weekly_instance.week_start_date = current_week_start
+                weekly_instance.save()
+                messages.success(
+                    request, 'Weekly plan updated successfully.')
+                return redirect('/teacher/' + str(code))
+            else:
+                messages.warning(
+                    request, 'Please correct the errors in the weekly plan form.')
+        else:
+            weekly_form = WeeklyPlanForm(instance=existing_weekly_plan)
+
+        return render(request, 'main/weekly_plan.html', {
+            'subject': subject,
+            'teacher': teacher,
+            'weekly_form': weekly_form,
+        })
+    else:
+        return redirect('std_login')
+
 
 
 def allPlans(request, code):
     if is_teacher_authorised(request, code):
         subject = Subject.objects.get(code=code)
+        print("Subject Code:", subject.code)  # Debugging
+        print("Teacher ID:", request.session['teacher_id'])  # Debugging
         weekly_plans = WeeklyPlan.objects.filter(subject=subject)
+        print("Weekly Plans:", weekly_plans)  # Debugging
 
         context = {
             'weekly_plans': weekly_plans,
@@ -400,6 +438,7 @@ def allPlans(request, code):
         return render(request, 'main/all-weekly-plans.html', context)
     else:
         return redirect('std_login')
+
 
 
 def addAssignment(request, code):

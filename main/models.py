@@ -97,6 +97,7 @@ class WeeklyPlan(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     week_start_date = models.DateField()
     description = models.CharField(max_length=200)
+    plan = FroalaField()
     title = models.CharField(max_length=200)
 
     def __str__(self):
