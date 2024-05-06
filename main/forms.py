@@ -1,6 +1,6 @@
 from django import forms
 from froala_editor.widgets import FroalaEditor
-from .models import Announcement, Assignment, LessonPlan, Material, Submission, WeeklyPlan
+from .models import Announcement, Assignment, ClassSchedule, LessonPlan, Material, Submission, WeeklyPlan
 from datetime import date, timedelta, timezone
 
 
@@ -120,3 +120,8 @@ class SubmissionForm(forms.ModelForm):
             'writing': FroalaEditor(),
             'file': forms.FileInput(attrs={'class': 'form-control', 'id': 'file', 'name': 'file', 'aria-describedby': 'file', 'aria-label': 'Upload'}),
         }
+
+class ClassScheduleForm(forms.ModelForm):
+    class Meta:
+        model = ClassSchedule
+        exclude = ['subject']

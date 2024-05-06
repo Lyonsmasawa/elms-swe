@@ -3,11 +3,11 @@ from django.forms import formset_factory, inlineformset_factory
 import datetime
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import LessonPlan, Student, Subject, Announcement, Assignment, Submission, Material, Teacher, Level, WeeklyPlan
+from .models import ClassSchedule, LessonPlan, Student, Subject, Announcement, Assignment, Submission, Material, Teacher, Level, WeeklyPlan
 from django.template.defaulttags import register
 from django.db.models import Count, Q
 from django.http import HttpResponseRedirect
-from .forms import AnnouncementForm, AssignmentForm, LessonPlanForm, MaterialForm, SubmissionForm, WeeklyPlanForm
+from .forms import AnnouncementForm, AssignmentForm, ClassScheduleForm, LessonPlanForm, MaterialForm, SubmissionForm, WeeklyPlanForm
 from django import forms
 from django.core import validators
 
@@ -190,9 +190,14 @@ def subject_page_teacher(request, code):
             weekly_plans = WeeklyPlan.objects.filter(
                 teacher=teacher,
                 subject=subject
-            )
+            ).first()
         except:
             weekly_plans = None
+
+        try:
+            class_schedules = ClassSchedule.objects.filter(subject=subject)
+        except ClassSchedule.DoesNotExist:
+            class_schedules = None
 
         context = {
             'subject': subject,
@@ -202,6 +207,7 @@ def subject_page_teacher(request, code):
             'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
             'studentCount': studentCount,
             'weekly_plans': weekly_plans,
+            'class_schedules': class_schedules,
         }
 
         return render(request, 'main/teacher_subject.html', context)
@@ -379,8 +385,8 @@ def addWeeklyPlandep(request, code):
         })
     else:
         return redirect('std_login')
-    
-    
+
+
 def addWeeklyPlan(request, code):
     if is_teacher_authorised(request, code):
         subject = get_object_or_404(Subject, code=code)
@@ -396,7 +402,8 @@ def addWeeklyPlan(request, code):
 
         if request.method == 'POST':
             # Handle form submission
-            weekly_form = WeeklyPlanForm(request.POST, instance=existing_weekly_plan)
+            weekly_form = WeeklyPlanForm(
+                request.POST, instance=existing_weekly_plan)
             if weekly_form.is_valid():
                 weekly_instance = weekly_form.save(commit=False)
                 weekly_instance.teacher = teacher
@@ -419,6 +426,7 @@ def addWeeklyPlan(request, code):
         })
     else:
         return redirect('std_login')
+    
 
 
 
@@ -438,7 +446,30 @@ def allPlans(request, code):
         return render(request, 'main/all-weekly-plans.html', context)
     else:
         return redirect('std_login')
+    
+def addSchedule(request, code):
+    if is_teacher_authorised(request, code):
+        subject = Subject.objects.get(code=code)
 
+        if request.method == 'POST':
+            form = ClassScheduleForm(request.POST)
+            if form.is_valid():
+                schedule = form.save(commit=False)
+                schedule.subject = subject
+                schedule.save()
+                return redirect('/teacher/' + str(code))
+
+        else:
+            form = ClassScheduleForm()
+
+        context = {
+            'form': form,
+            'subject': subject,
+            'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),  # Assuming you have a Teacher model
+        }
+        return render(request, 'main/add-schedule.html', context)
+    else:
+        return redirect('std_login')
 
 
 def addAssignment(request, code):

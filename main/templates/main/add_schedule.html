@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} Add Class Schedule | eLMS {% endblock title %}
+{% block profile %}
+{% url 'profile' teacher.teacher_id %}
+{% endblock %}
+{% block user %}
+{{teacher.name}}
+{% endblock user %}
+{% block subjects %}
+{% url 'teacherSubjects' %}
+{% endblock subjects %}
+{% block allSubjects %}
+{% url 'subjects' %}
+{% endblock %}
+{% block content %}
+<!-- Add Class Schedule section starts -->
+<div class="container my-5">
+   <h2 class="fw-bold mb-4">Add Class Schedule</h2>
+   <div class="row">
+      <div class="col-md-8 offset-md-2">
+         <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Add Schedule</button>
+         </form>
+      </div>
+   </div>
+</div>
+<!-- Add Class Schedule section ends -->
+{% endblock %}

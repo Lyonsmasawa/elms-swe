@@ -251,19 +251,26 @@
          </a>
       </div>
       <div>
-         {% for plan in weekly_plans %}
-         <!-- Individual weekly plan starts -->
-         <div class="fs-6 fw-bold">{{ plan.week_start_date }}</div>
-         <!-- <div class="fs-6">{{ plan.plan }}</div> -->
-         <hr>
-         <!-- Individual weekly plan ends -->
-         {% empty %}
-         <p class="text-center text-muted fs-6">No weekly plans available</p>
-         {% endfor %}
+         {% if weekly_plans %}
+         <!-- individual assignment starts -->
+         <a class="fs-6 fw-bold" href="{% url 'addWeeklyPlan' subject.code %}">
+         {{weekly_plans.title}}</a>
+         <div class="d-flex justify-content-between">
+            <div class="text-muted">
+               <p>Week date : {{ weekly_plans.week_start_date}}</p>
+            </div>
+            <div class="text-muted">
+               {{assignment.post_date}}
+            </div>
+         </div>
+         <!-- individual assignment ends -->
+         {% else %}
+         <p class="text-center text-muted fs-6">No weekly plan yet</p>
+         {% endif %}
       </div>
       <div class="text-center fs-6 text-muted d-flex flex-column border-top border-1">
          {% if weekly_plans %}
-         <span class="mt-2">Showing {{ weekly_plans.count }} of {{ subject.weeklyplan_set.count }}
+         <span class="mt-2">Showing 1 of {{ subject.weeklyplan_set.count }}
             {% if weekly_plans.count == 1 %}weekly plan{% else %}weekly plans{% endif %}
          </span>
          <a href="{% url 'allWeeklyPlans' subject.code %}">Show all</a>
@@ -271,6 +278,53 @@
       </div>
    </div>
    <!-- Weekly plan section ends -->
+   <!-- Class schedule section starts -->
+<div class="rounded p-3 m-3 shadow border border-top-0 border-bottom-0 border-end-0 border-info border-5">
+   <div class="animate__animated animate__zoomInLeft d-flex flex-row justify-content-between edit border-bottom border-1 mb-2">
+       <h5 class="fw-bold" style="color: rgb(10, 10, 48);">
+           <img src="{% static 'images/icon/calendar.png' %}" alt="" style="height:1.5rem; vertical-align: top">
+           <span style="margin-right: 0.6rem;"></span>Class Schedule
+       </h5>
+   </div>
+   <div>
+       {% if class_schedules %}
+       <div class="table-responsive">
+           <table class="table table-bordered">
+               <thead>
+                   <tr>
+                       <th>Date</th>
+                       <th>Day</th>
+                       <th>Start Time</th>
+                       <th>End Time</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   {% for schedule in class_schedules %}
+                   <tr>
+                       <td>{{ schedule.date }}</td>
+                       <td>{{ schedule.get_day_of_week_display }}</td>
+                       <td>{{ schedule.start_time }}</td>
+                       <td>{{ schedule.end_time }}</td>
+                   </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
+       {% else %}
+       <p class="text-center text-muted fs-6">No class schedule available</p>
+       {% endif %}
+   </div>
+   <div class="text-center fs-6 text-muted d-flex flex-column border-top border-1">
+       {% if class_schedules %}
+       <span class="mt-2">Showing {{ class_schedules.count }} of {{ subject.schedules.count }}
+           {% if class_schedules.count == 1 %}class schedule{% else %}class schedules{% endif %}
+       </span>
+       <a href="{% url 'allClassSchedules' subject.code %}">Show all</a>
+       {% endif %}
+   </div>
+</div>
+<!-- Class schedule section ends -->
+
 
 
 </div>

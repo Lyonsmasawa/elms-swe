@@ -36,13 +36,13 @@
          <div class="fw-bold fs-5 subject_name">{{subject.level}}-{{subject.code}} : {{subject.name}}</div>
       </div>
       <!-- subject name ends -->
-       <!-- weekly plan section starts -->
-       <div class="subject-section p-3 m-3 shadow">
+      <!-- assignment section starts -->
+      <div class="subject-section p-3 m-3 shadow">
          <div class="d-flex flex-row justify-content-between edit">
             <h4 class="fw-bold" style="color: rgb(10, 10, 48);"><img src="{% static 'images/icon/open-book.png' %}"
-               alt="" style="height:1.5rem"><span style="margin-right: 0.6rem;"></span>Weekly Plans</h4>
+               alt="" style="height:1.5rem"><span style="margin-right: 0.6rem;"></span>Weekly Plan</h4>
             <a style="height:2rem"
-               href="{% url 'addWeeklyPlan' subject.code %}">
+               href="{%  url 'addWeeklyPlan' subject.code  %}">
             <img src="{% static 'images/icon/iconBlack.png' %}"
                alt="" height="32">
             </a>
@@ -50,13 +50,18 @@
          <hr>
          <div class="add-announcement">
             {% for plan in weekly_plans %}
-            <!-- individual weekly plan starts --> 
-            <div>
-               <p class="text-bold fs-6">Week of: {{ plan.week_start_date }}</p>
-               <p>{{ plan.title }}</p>
+            <!-- individual assignment starts --> 
+            <a class="text-bold fs-6" href="{%  url 'addWeeklyPlan' subject.code  %}">
+            {{plan.title}}</a>
+            <div class="d-flex justify-content-between align-items-center">
+               <p style="margin-bottom:0;" class="text-muted">Description: {{ plan.description}}</p>
+               <p class="fs-6 text-muted" style="margin-bottom:0;">
+                  {{plan.week_start_date}}
+               </p>
             </div>
+            <p style="margin-bottom:0;">Weekly Plan</p>
             <hr>
-            <!-- individual weekly plan ends -->
+            <!-- individual assignment ends -->
             {% empty %}
             <h6 style="text-align:center">No weekly plans available</h6>
             {% endfor %}
@@ -65,7 +70,7 @@
             <p>Showing {{ weekly_plans.count }} of {{ subject.weeklyplan_set.count }} {% if weekly_plans.count == 1 %}plan{% else %}plans{% endif %}</p>
          </div>
       </div>
-      <!-- weekly plan section ends -->
+      <!-- assignment section ends -->
    </div>
 </div>
 {% endblock %}
