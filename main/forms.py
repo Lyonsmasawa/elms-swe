@@ -125,3 +125,11 @@ class ClassScheduleForm(forms.ModelForm):
     class Meta:
         model = ClassSchedule
         exclude = ['subject']
+        
+        # fields = ('title', 'plan', 'time', 'date')
+        widgets = {
+            'date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'placeholder': 'Date'}),
+            'start_time': forms.TimeInput(attrs={'class': 'form-control mt-1', 'type': 'time', 'placeholder': 'Time'}),
+            'end_time': forms.TimeInput(attrs={'class': 'form-control mt-1', 'type': 'time', 'placeholder': 'Time'}),
+            
+        }

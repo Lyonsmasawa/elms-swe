@@ -144,18 +144,20 @@ def subject_page(request, code):
                 assignments = Assignment.objects.filter(
                     subject_code=subject.code)
                 materials = Material.objects.filter(subject_code=subject.code)
+                class_schedules = ClassSchedule.objects.filter(subject=subject)
 
             except:
                 announcements = None
                 assignments = None
                 materials = None
-
+                class_schedules = None
             context = {
                 'subject': subject,
                 'announcements': announcements,
                 'assignments': assignments[:3],
                 'materials': materials,
-                'student': Student.objects.get(student_id=request.session['student_id'])
+                'student': Student.objects.get(student_id=request.session['student_id']),
+                'class_schedules': class_schedules,
             }
 
             return render(request, 'main/subject.html', context)
@@ -426,8 +428,6 @@ def addWeeklyPlan(request, code):
         })
     else:
         return redirect('std_login')
-    
-
 
 
 def allPlans(request, code):
@@ -446,7 +446,71 @@ def allPlans(request, code):
         return render(request, 'main/all-weekly-plans.html', context)
     else:
         return redirect('std_login')
+
+
+def allClassSchedules(request, code):
+    if is_teacher_authorised(request, code):
+        subject = Subject.objects.get(code=code)
+        class_schedules = ClassSchedule.objects.filter(subject=subject)
+
+        context = {
+            'class_schedules': class_schedules,
+            'subject': subject,
+            'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
+        }
+        return render(request, 'main/all-class-schedules.html', context)
+    else:
+        return redirect('std_login')
+
+
+
+def editSchedule(request, code):
+    schedule = get_object_or_404(ClassSchedule, id=code)
+    print(schedule)
+    if is_teacher_authorised(request, code):  
+        print
+        if request.method == 'POST':
+            form = ClassScheduleForm(request.POST, instance=schedule)
+            if form.is_valid():
+                form.save()
+                return redirect('allClassSchedules', subject_code=schedule.subject.code)
+        else:
+            form = ClassScheduleForm(instance=schedule)
+        
+        context = {
+            'form': form,
+            'schedule': schedule,
+            'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
+        }
+        
+        return render(request, 'main/edit_class_schedule.html', context)
     
+    else:
+        return redirect('std_login')
+
+
+def editSchedule(request, code):
+    schedule = get_object_or_404(ClassSchedule, id=code)
+    
+    # Check if the teacher is authorized to edit this schedule
+    if not is_teacher_authorised(request, schedule.subject.code):
+        return redirect('std_login')
+    
+    if request.method == 'POST':
+        form = ClassScheduleForm(request.POST, instance=schedule)
+        if form.is_valid():
+            form.save()
+            return redirect('allClassSchedules', code=schedule.subject.code)  # Redirect to the schedule list page
+    else:
+        form = ClassScheduleForm(instance=schedule)
+        
+    context = {
+        'form': form,
+        'schedule': schedule,
+        'teacher': request.session.get('teacher_id'),  # Use get() to avoid KeyError if teacher_id doesn't exist
+    }
+    
+    return render(request, 'main/edit_class_schedule.html', context)
 def addSchedule(request, code):
     if is_teacher_authorised(request, code):
         subject = Subject.objects.get(code=code)
@@ -465,9 +529,10 @@ def addSchedule(request, code):
         context = {
             'form': form,
             'subject': subject,
-            'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),  # Assuming you have a Teacher model
+            # Assuming you have a Teacher model
+            'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
         }
-        return render(request, 'main/add-schedule.html', context)
+        return render(request, 'main/add_schedule.html', context)
     else:
         return redirect('std_login')
 

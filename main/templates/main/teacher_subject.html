@@ -280,11 +280,13 @@
    <!-- Weekly plan section ends -->
    <!-- Class schedule section starts -->
 <div class="rounded p-3 m-3 shadow border border-top-0 border-bottom-0 border-end-0 border-info border-5">
-   <div class="animate__animated animate__zoomInLeft d-flex flex-row justify-content-between edit border-bottom border-1 mb-2">
-       <h5 class="fw-bold" style="color: rgb(10, 10, 48);">
-           <img src="{% static 'images/icon/calendar.png' %}" alt="" style="height:1.5rem; vertical-align: top">
-           <span style="margin-right: 0.6rem;"></span>Class Schedule
-       </h5>
+   <div class="animate__animated animate__zoomInDown d-flex justify-content-between border-bottom border-1 mb-2">
+      <h5 class="fw-bold" style="color: rgb(10, 10, 48);"><img src="{% static 'images/icon/mega.png' %}"
+         alt="" style="height:1.5rem; vertical-align: text-bottom;"><span style="margin-right: 0.6rem;"></span>Class Schedule
+      </h5>
+      <a
+         href="{% url 'add_schedule' subject.code %}"><img src="{% static 'images/icon/iconBlack.png' %}"
+         alt="" height="32"></a>
    </div>
    <div>
        {% if class_schedules %}
@@ -293,7 +295,6 @@
                <thead>
                    <tr>
                        <th>Date</th>
-                       <th>Day</th>
                        <th>Start Time</th>
                        <th>End Time</th>
                    </tr>
@@ -302,7 +303,6 @@
                    {% for schedule in class_schedules %}
                    <tr>
                        <td>{{ schedule.date }}</td>
-                       <td>{{ schedule.get_day_of_week_display }}</td>
                        <td>{{ schedule.start_time }}</td>
                        <td>{{ schedule.end_time }}</td>
                    </tr>
@@ -324,7 +324,6 @@
    </div>
 </div>
 <!-- Class schedule section ends -->
-
 
 
 </div>
