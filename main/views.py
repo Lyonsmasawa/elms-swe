@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from .forms import AnnouncementForm, AssignmentForm, ClassScheduleForm, LessonPlanForm, MaterialForm, SubmissionForm, WeeklyPlanForm
 from django import forms
 from django.core import validators
-
+from django.contrib.auth.hashers import make_password,  check_password
 
 from django import forms
 
@@ -36,7 +36,6 @@ def is_teacher_authorised(request, code):
         return False
 
 
-# Custom Login page for both student and teacher
 def std_login(request):
     error_messages = []
 
@@ -47,12 +46,32 @@ def std_login(request):
             id = form.cleaned_data['id']
             password = form.cleaned_data['password']
 
-            if Student.objects.filter(student_id=id, password=password).exists():
-                request.session['student_id'] = id
-                return redirect('mySubjects')
-            elif Teacher.objects.filter(teacher_id=id, password=password).exists():
-                request.session['teacher_id'] = id
-                return redirect('teacherSubjects')
+            # Check if the user is a student
+            if Student.objects.filter(student_id=id).exists():
+                student = Student.objects.get(student_id=id)
+                # Check if the password matches the hashed password in the database
+                if check_password(password, student.password):
+                    request.session['student_id'] = id
+                    return redirect('mySubjects')
+                # Check if the password matches the plain text password in the database
+                elif password == student.password:
+                    request.session['student_id'] = id
+                    return redirect('mySubjects')
+                else:
+                    error_messages.append('Invalid login credentials.')
+            # Check if the user is a teacher
+            elif Teacher.objects.filter(teacher_id=id).exists():
+                teacher = Teacher.objects.get(teacher_id=id)
+                # Check if the password matches the hashed password in the database
+                if check_password(password, teacher.password):
+                    request.session['teacher_id'] = id
+                    return redirect('teacherSubjects')
+                # Check if the password matches the plain text password in the database
+                elif password == teacher.password:
+                    request.session['teacher_id'] = id
+                    return redirect('teacherSubjects')
+                else:
+                    error_messages.append('Invalid login credentials.')
             else:
                 error_messages.append('Invalid login credentials.')
         else:
@@ -421,10 +440,15 @@ def addWeeklyPlan(request, code):
         else:
             weekly_form = WeeklyPlanForm(instance=existing_weekly_plan)
 
+        lesson_plans = LessonPlan.objects.filter(
+            week_plan=existing_weekly_plan) if existing_weekly_plan else []
+
         return render(request, 'main/weekly_plan.html', {
             'subject': subject,
             'teacher': teacher,
             'weekly_form': weekly_form,
+            'lesson_plans': lesson_plans,
+            'existing_weekly_plan': existing_weekly_plan,
         })
     else:
         return redirect('std_login')
@@ -448,6 +472,79 @@ def allPlans(request, code):
         return redirect('std_login')
 
 
+def viewWeeklyPlan(request, plan_id):
+    weekly_plan = get_object_or_404(WeeklyPlan, id=plan_id)
+    lesson_plans = weekly_plan.lessonplan_set.all()
+
+    context = {
+        'weekly_plan': weekly_plan,
+        'lesson_plans': lesson_plans,
+        'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
+    }
+
+    return render(request, 'main/viewWeeklyPlan.html', context)
+
+
+def addLessonPlan(request, plan_id):
+    weekly_plan = get_object_or_404(WeeklyPlan, id=plan_id)
+    if is_teacher_authorised(request, weekly_plan.subject.code):
+        teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
+
+        subject = Subject.objects.get(code=weekly_plan.subject.code)
+        if request.method == 'POST':
+            lesson_form = LessonPlanForm(request.POST)
+            if lesson_form.is_valid():
+                lesson_instance = lesson_form.save(commit=False)
+                lesson_instance.week_plan = weekly_plan
+                lesson_instance.save()
+                messages.success(request, 'Lesson plan added successfully.')
+                return redirect('addWeeklyPlan', code=weekly_plan.subject.code)
+            else:
+                messages.warning(
+                    request, 'Please correct the errors in the lesson plan form.')
+        else:
+            lesson_form = LessonPlanForm()
+
+        return render(request, 'main/add_lesson_plan.html', {
+            'weekly_plan': weekly_plan,
+            'lesson_form': lesson_form,
+            'subject': subject,
+            'teacher': teacher,
+        })
+    else:
+        return redirect('std_login')
+
+
+def editLessonPlan(request, lesson_id):
+    lesson_plan = get_object_or_404(LessonPlan, id=lesson_id)
+    weekly_plan = lesson_plan.week_plan
+
+    if is_teacher_authorised(request, weekly_plan.subject.code):
+        subject = Subject.objects.get(code=weekly_plan.subject.code)
+        teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
+        if request.method == 'POST':
+            lesson_form = LessonPlanForm(request.POST, instance=lesson_plan)
+            if lesson_form.is_valid():
+                lesson_form.save()
+                messages.success(request, 'Lesson plan updated successfully.')
+                return redirect('addWeeklyPlan', code=weekly_plan.subject.code)
+            else:
+                messages.warning(
+                    request, 'Please correct the errors in the lesson plan form.')
+        else:
+            lesson_form = LessonPlanForm(instance=lesson_plan)
+
+        return render(request, 'main/edit_lesson_plan.html', {
+            'lesson_form': lesson_form,
+            'lesson_plan': lesson_plan,
+            'weekly_plan': weekly_plan,
+            'subject': subject,
+            'teacher': teacher,
+        })
+    else:
+        return redirect('std_login')
+
+
 def allClassSchedules(request, code):
     if is_teacher_authorised(request, code):
         subject = Subject.objects.get(code=code)
@@ -463,11 +560,10 @@ def allClassSchedules(request, code):
         return redirect('std_login')
 
 
-
 def editSchedule(request, code):
     schedule = get_object_or_404(ClassSchedule, id=code)
     print(schedule)
-    if is_teacher_authorised(request, code):  
+    if is_teacher_authorised(request, code):
         print
         if request.method == 'POST':
             form = ClassScheduleForm(request.POST, instance=schedule)
@@ -476,41 +572,45 @@ def editSchedule(request, code):
                 return redirect('allClassSchedules', subject_code=schedule.subject.code)
         else:
             form = ClassScheduleForm(instance=schedule)
-        
+
         context = {
             'form': form,
             'schedule': schedule,
             'teacher': Teacher.objects.get(teacher_id=request.session['teacher_id']),
         }
-        
+
         return render(request, 'main/edit_class_schedule.html', context)
-    
+
     else:
         return redirect('std_login')
 
 
 def editSchedule(request, code):
     schedule = get_object_or_404(ClassSchedule, id=code)
-    
+
     # Check if the teacher is authorized to edit this schedule
     if not is_teacher_authorised(request, schedule.subject.code):
         return redirect('std_login')
-    
+
     if request.method == 'POST':
         form = ClassScheduleForm(request.POST, instance=schedule)
         if form.is_valid():
             form.save()
-            return redirect('allClassSchedules', code=schedule.subject.code)  # Redirect to the schedule list page
+            # Redirect to the schedule list page
+            return redirect('allClassSchedules', code=schedule.subject.code)
     else:
         form = ClassScheduleForm(instance=schedule)
-        
+
     context = {
         'form': form,
         'schedule': schedule,
-        'teacher': request.session.get('teacher_id'),  # Use get() to avoid KeyError if teacher_id doesn't exist
+        # Use get() to avoid KeyError if teacher_id doesn't exist
+        'teacher': request.session.get('teacher_id'),
     }
-    
+
     return render(request, 'main/edit_class_schedule.html', context)
+
+
 def addSchedule(request, code):
     if is_teacher_authorised(request, code):
         subject = Subject.objects.get(code=code)
@@ -554,44 +654,30 @@ def addAssignment(request, code):
 
 
 def assignmentPage(request, code, id):
-    subject = Subject.objects.get(code=code)
+    subject = get_object_or_404(Subject, code=code)
     if is_student_authorised(request, code):
-        assignment = Assignment.objects.get(subject_code=subject.code, id=id)
+        assignment = get_object_or_404(
+            Assignment, subject_code=subject.code, id=id)
+        student = get_object_or_404(
+            Student, student_id=request.session['student_id'])
         try:
-
-            submission = Submission.objects.get(assignment=assignment, student=Student.objects.get(
-                student_id=request.session['student_id']))
-
-            context = {
-                'assignment': assignment,
-                'subject': subject,
-                'submission': submission,
-                'time': datetime.datetime.now(),
-                'student': Student.objects.get(student_id=request.session['student_id']),
-                'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all(),
-                'form':  SubmissionForm()
-
-            }
-
-            return render(request, 'main/assignment-portal.html', context)
-
-        except:
-            submission = SubmissionForm()
+            submission = Submission.objects.get(
+                assignment=assignment, student=student)
+        except Submission.DoesNotExist:
+            submission = None
 
         context = {
             'assignment': assignment,
             'subject': subject,
             'submission': submission,
             'time': datetime.datetime.now(),
-            'student': Student.objects.get(student_id=request.session['student_id']),
-            'subjects': Student.objects.get(student_id=request.session['student_id']).subject.all(),
+            'student': student,
+            'subjects': student.subject.all(),
             'form':  SubmissionForm()
-
         }
-        print(1)
+
         return render(request, 'main/assignment-portal.html', context)
     else:
-
         return redirect('std_login')
 
 
@@ -782,6 +868,7 @@ def subjects(request):
         if request.session.get('student_id'):
             student = Student.objects.get(
                 student_id=request.session['student_id'])
+            subjects = Subject.objects.filter(level=student.level)
         else:
             student = None
         if request.session.get('teacher_id'):
@@ -912,18 +999,20 @@ def changePhotoPrompt(request):
 
 def changePassword(request):
     if request.session.get('student_id'):
-        student = Student.objects.get(
-            student_id=request.session['student_id'])
+        student = Student.objects.get(student_id=request.session['student_id'])
         if request.method == 'POST':
-            if student.password == request.POST['oldPassword']:
-                # New and confirm password check is done in the client side
-                student.password = request.POST['newPassword']
+            old_password = request.POST['oldPassword']
+            new_password = request.POST['newPassword']
+            
+            # Check if the provided old password matches either the hashed password or plain text password stored in the database
+            if check_password(old_password, student.password) or old_password == student.password:
+                # Hash the new password before saving
+                student.password = make_password(new_password)
                 student.save()
                 messages.success(request, 'Password was changed successfully')
                 return redirect('/profile/' + str(student.student_id))
             else:
-                messages.error(
-                    request, 'Password is incorrect. Please try again')
+                messages.error(request, 'Old password is incorrect. Please try again')
                 return redirect('/changePassword/')
         else:
             return render(request, 'main/changePassword.html', {'student': student})
@@ -933,25 +1022,26 @@ def changePassword(request):
 
 def changePasswordTeacher(request):
     if request.session.get('teacher_id'):
-        teacher = Teacher.objects.get(
-            teacher_id=request.session['teacher_id'])
+        teacher = Teacher.objects.get(teacher_id=request.session['teacher_id'])
         if request.method == 'POST':
-            if teacher.password == request.POST['oldPassword']:
-                # New and confirm password check is done in the client side
-                teacher.password = request.POST['newPassword']
+            old_password = request.POST['oldPassword']
+            new_password = request.POST['newPassword']
+            
+            # Check if the provided old password matches either the hashed password or plain text password stored in the database
+            if check_password(old_password, teacher.password) or old_password == teacher.password:
+                # Hash the new password before saving
+                teacher.password = make_password(new_password)
                 teacher.save()
                 messages.success(request, 'Password was changed successfully')
                 return redirect('/teacherProfile/' + str(teacher.teacher_id))
             else:
-                print('error')
-                messages.error(
-                    request, 'Password is incorrect. Please try again')
+                messages.error(request, 'Old password is incorrect. Please try again')
                 return redirect('/changePasswordTeacher/')
         else:
-            print(teacher)
             return render(request, 'main/changePasswordTeacher.html', {'teacher': teacher})
     else:
         return redirect('std_login')
+
 
 
 def changePhoto(request):

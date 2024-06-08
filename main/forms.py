@@ -83,8 +83,8 @@ class LessonPlanForm(forms.ModelForm):
         model = LessonPlan
         fields = ('title', 'plan', 'time', 'date')
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Lesson Tilte'}),
-            'plan': FroalaEditor(),
+            'title': forms.TextInput(attrs={'class': 'form-control mt-1', 'placeholder': 'Lesson Title'}),
+            'plan': FroalaEditor(attrs={'class': 'form-control mt-1', 'placeholder': 'Lesson Plan'}),
             'time': forms.TimeInput(attrs={'class': 'form-control mt-1', 'type': 'time', 'placeholder': 'Time'}),
             'date': forms.DateInput(attrs={'class': 'form-control mt-1', 'type': 'date', 'placeholder': 'Date'}),
         }

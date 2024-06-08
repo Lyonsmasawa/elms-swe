@@ -66,11 +66,15 @@
       {% endif %}
       {% if submission.file %}
       <label class="p-2 fw-bold" for=""> Your Submission : </label>
-      <a style="text-decoration:none" download href="{{submission.file.url}}">{{submission.file_name}}</a>
+      <a style="text-decoration:none" download href="{{submission.file.url}}">{{submission.file_name}}</a><br>
+      {% endif %}
+      {% if submission %}
+      <label class="p-2 fw-bold" for=""> Your Submission : </label>
+      <p class="container">{% autoescape off %}{{submission.writing}}{% endautoescape %}</p><br>
       {% endif %}
       <label id="timer" class="p-2 fw-bold" for="">Time Remaining : <span id="timeRemain" class="fw-semibold"></span></label><br>
    </div>
-   {% if time < assignment.deadline and not submission.writing and not submission.file %}
+   {% if time < assignment.deadline and submission is None  %}
    <form action="{% url 'addSubmission' subject.code assignment.id %}" method="POST" enctype="multipart/form-data"
       id="gradeForm" name="gradeForm">
       {% csrf_token %}

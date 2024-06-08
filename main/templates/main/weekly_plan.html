@@ -16,37 +16,69 @@
 {% block content %}
 <!-- navigation links -->
 <div class="container shadow-sm">
-   <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-      <ol class="breadcrumb p-3">
-         <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)" href="{% url 'teacherSubjects' %}">My
-            subjects</a>
-         </li>
-         <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)"
-            href="{% url 'teacher' subject.code %}">{{ subject.name }}</a></li>
-         <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Weekly Plan</li>
-      </ol>
-   </nav>
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);"
+        aria-label="breadcrumb">
+        <ol class="breadcrumb p-3">
+            <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)" href="{% url 'teacherSubjects' %}">My
+                    subjects</a>
+            </li>
+            <li class="breadcrumb-item fw-bold"><a style="color: rgb(10, 10, 48)"
+                    href="{% url 'teacher' subject.code %}">{{ subject.name }}</a></li>
+            <li class="breadcrumb-item active animate__animated animate__backInRight" aria-current="page">Weekly Plan
+            </li>
+        </ol>
+    </nav>
 </div>
 <!-- navigation links end -->
 <div class="containedr">
-   <div class="row justify-content-center">
-       <div class="col-md-8 shadow-lg p-3 rounded">
-           <div class="text-cdenter">
-               <div class="fw-bold mb-3 text-start">Add Weekly Plan</div>
-               <div class="from-groudp">
-                   <form method="post" enctype="multipart/form-data">
-                       {% csrf_token %}
-                       {{ weekly_form.as_p }}
-                       <!-- submit button -->
-                       <div class="d-flex justify-content-end bg-light border p-2 rounded">
-                           <a class="btn btn-sm btn-outline-danger mx-2" href="{% url 'teacher' subject.code %}">Cancel</a>
-                           <button class="btn btn-sm btn-primary" type="submit" id="submit"> <span class="mx-2">Save</span></button>
-                       </div>
-                   </form>
-               </div>
-           </div>
-       </div>
-   </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8 shadow-lg p-3 rounded">
+            <div class="text-cdenter">
+                <div class="weekly">
+                    <div class="fw-bold mb-3 text-start">Add Weekly Plan </div>
+                </div>
+                <div class="from-groudp">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ weekly_form.as_p }}
+                        <!-- submit button -->
+                        <div class="d-flex justify-content-end bg-light border p-2 rounded">
+                            <a class="btn btn-sm btn-outline-danger mx-2"
+                                href="{% url 'teacher' subject.code %}">Cancel</a>
+                            <button class="btn btn-sm btn-primary" type="submit" id="submit"> <span
+                                    class="mx-2">Save</span></button>
+                        </div>
+                    </form>
+                    
+                    {% if existing_weekly_plan %}
+                        <div class="mt-4">
+                            <h5>Lesson Plans for the Week</h5>
+                            {% if lesson_plans %}
+                            <div class="row">
+                                {% for lesson in lesson_plans %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ lesson.title }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ lesson.date }} {{ lesson.time }}</h6>
+                                            <p class="card-text">{{ lesson.plan|truncatewords:20 }}</p>
+                                            <a href="{% url 'editLessonPlan' lesson.id %}" class="card-link">Edit or View</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p>No lesson plans available for this week.</p>
+                            {% endif %}
+                            <a href="{% url 'addLessonPlan' existing_weekly_plan.id %}" class="btn btn-primary mt-2">Add Lesson Plan</a>
+                        </div>
+                    {% endif %}
+                        
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

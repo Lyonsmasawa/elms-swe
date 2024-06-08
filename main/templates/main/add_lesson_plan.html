@@ -1,0 +1,35 @@
+<!-- templates/main/add_lesson_plan.html -->
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} Add Lesson Plan | eLMS {% endblock title %}
+{% block profile %}
+{% url 'profile' teacher.teacher_id %}
+{% endblock %}
+{% block user %}
+{{teacher.name}}
+{% endblock user %}
+{% block allSubjects %}
+{% url 'subjects' %}
+{% endblock %}
+{% block subjects %}
+{% url 'teacherSubjects' %}
+{% endblock subjects %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 shadow-lg p-3 rounded">
+            <div class="text-center">
+                <div class="fw-bold mb-3 text-start">Add Lesson Plan</div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ lesson_form.as_p }}
+                    <div class="d-flex justify-content-end bg-light border p-2 rounded">
+                        <a class="btn btn-sm btn-outline-danger mx-2" href="{% url 'teacher' subject.code %}">Cancel</a>
+                        <button class="btn btn-sm btn-primary" type="submit" id="submit"> <span class="mx-2">Save</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
