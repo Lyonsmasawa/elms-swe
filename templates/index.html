@@ -34,10 +34,12 @@
                      <a class="nav-link active fw-bold" aria-current="page" href="{% block subjects %}{% endblock subjects %}"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Subject home page">Dashboard</a>
                   </li>
+                  {% if not student %}
                   <li class="nav-item">
                      <a class="nav-link active fw-bold" aria-current="page" href="/levels"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Subject home page">Levels</a>
                   </li>
+                  {% endif %}
                   <li class="nav-item">
                      <a class="nav-link active fw-bold" href="{% block allSubjects %}{% endblock %}" data-bs-toggle="tooltip"
                         data-bs-placement="bottom" title="Show all subjects">Subjects</a>
